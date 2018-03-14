@@ -6,25 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Lotteri.Models;
+using System.Security.Principal;
 
 namespace Lotteri.Controllers
 {
-    public class LotteriController : Controller
+    public class AnmalanController : Controller
     {
         private readonly LotteriContext _context;
 
-        public LotteriController(LotteriContext context)
+        public AnmalanController(LotteriContext context)
         {
             _context = context;
         }
 
-        // GET: Lotteri
+        // GET: Anmalan
         public async Task<IActionResult> Index()
         {
             return View(await _context.LottoItemModel.ToListAsync());
         }
 
-        // GET: Lotteri/Details/5
+        // GET: Anmalan/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,7 +34,6 @@ namespace Lotteri.Controllers
             }
 
             var lottoItemModel = await _context.LottoItemModel
-                .Include(m => m.Subscribers)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (lottoItemModel == null)
             {
@@ -43,13 +43,13 @@ namespace Lotteri.Controllers
             return View(lottoItemModel);
         }
 
-        // GET: Lotteri/Create
+        // GET: Anmalan/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Lotteri/Create
+        // POST: Anmalan/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -65,7 +65,7 @@ namespace Lotteri.Controllers
             return View(lottoItemModel);
         }
 
-        // GET: Lotteri/Edit/5
+        // GET: Anmalan/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -81,7 +81,7 @@ namespace Lotteri.Controllers
             return View(lottoItemModel);
         }
 
-        // POST: Lotteri/Edit/5
+        // POST: Anmalan/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -116,7 +116,7 @@ namespace Lotteri.Controllers
             return View(lottoItemModel);
         }
 
-        // GET: Lotteri/Delete/5
+        // GET: Anmalan/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -134,7 +134,7 @@ namespace Lotteri.Controllers
             return View(lottoItemModel);
         }
 
-        // POST: Lotteri/Delete/5
+        // POST: Anmalan/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -145,40 +145,70 @@ namespace Lotteri.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Lotta(int? id)
+
+        [HttpPost, ActionName("Subscribe")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Subscribe(int id,string name)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            string user;
+            user = name;
+            //if (system.security.claims.claimsprincipal.current.identity.name == null) {
+            //   user = "bosse";
+            //}
+            //else
+            //{
+            //    user = system.security.claims.claimsprincipal.current.identity.name;
 
-            var lottoItemModel = await _context.LottoItemModel
-                .Include(m => m.Subscribers)
+            //}
+
+            //user = "bosse";
+
+            var lottoItemModel = await _context.LottoItemModel.Include(m => m.Subscribers)
                 .SingleOrDefaultAsync(m => m.Id == id);
-            if (lottoItemModel == null)
+
+            //_context.LottoItemModel.Remove(lottoItemModel);
+            var subscriber = new Subscriber
             {
-                return NotFound();
+                Name = "bosse",
+                Email = "bosse@bosse.com",
+                Uid = user
+            };
+
+
+            var found = false;
+
+            if (lottoItemModel.Subscribers == null || lottoItemModel.Subscribers.Count == 0)
+            {
+                List<Subscriber> tlist = new List<Subscriber> { subscriber };
+                lottoItemModel.Subscribers = tlist;
+            }
+            else
+            {
+
+                
+                foreach (Subscriber s in lottoItemModel.Subscribers)
+                {
+                    if (s.Uid == subscriber.Uid) found = true;
+                }
+                if (!found)
+                {
+                    lottoItemModel.Subscribers.Add(subscriber);
+                }
+                
             }
 
-            var winner = DoLottery(lottoItemModel);
-            //send email to winner
+            if (found) {
+                
+                return View("Fel");
 
-            await _context.SaveChangesAsync();
-           
-            return View("Winner",lottoItemModel);
+            } else {
+                await _context.SaveChangesAsync();
+                return View("Klart");
+            }
+            
+            
 
 
-        }
-
-
-        private string DoLottery(LottoItemModel lottoItemModel) {
-
-            var random = new Random();
-            var winner = lottoItemModel.Subscribers[random.Next(lottoItemModel.Subscribers.Count)].Uid;
-            lottoItemModel.Winner = winner;
-            lottoItemModel.IsLottad = true;
-
-            return winner;
 
         }
 

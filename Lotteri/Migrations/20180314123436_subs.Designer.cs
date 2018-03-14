@@ -11,9 +11,10 @@ using System;
 namespace Lotteri.Migrations
 {
     [DbContext(typeof(LotteriContext))]
-    partial class LotteriContextModelSnapshot : ModelSnapshot
+    [Migration("20180314123436_subs")]
+    partial class subs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
