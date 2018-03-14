@@ -33,7 +33,6 @@ namespace Lotteri.Controllers
             }
 
             var lottoItemModel = await _context.LottoItemModel
-                .Include(m => m.Subscribers)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (lottoItemModel == null)
             {
@@ -143,43 +142,6 @@ namespace Lotteri.Controllers
             _context.LottoItemModel.Remove(lottoItemModel);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        public async Task<IActionResult> Lotta(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var lottoItemModel = await _context.LottoItemModel
-                .Include(m => m.Subscribers)
-                .SingleOrDefaultAsync(m => m.Id == id);
-            if (lottoItemModel == null)
-            {
-                return NotFound();
-            }
-
-            var winner = DoLottery(lottoItemModel);
-            //send email to winner
-
-            await _context.SaveChangesAsync();
-           
-            return View("Winner",lottoItemModel);
-
-
-        }
-
-
-        private string DoLottery(LottoItemModel lottoItemModel) {
-
-            var random = new Random();
-            var winner = lottoItemModel.Subscribers[random.Next(lottoItemModel.Subscribers.Count)].Uid;
-            lottoItemModel.Winner = winner;
-            lottoItemModel.IsLottad = true;
-
-            return winner;
-
         }
 
         private bool LottoItemModelExists(int id)
