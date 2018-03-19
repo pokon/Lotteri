@@ -34,10 +34,6 @@ namespace Lotteri.Migrations
                     b.Property<string>("Name")
                         .IsRequired();
 
-                    b.Property<string>("Winner");
-
-                    b.Property<bool>("isLottad");
-
                     b.HasKey("Id");
 
                     b.ToTable("LottoItemModel");

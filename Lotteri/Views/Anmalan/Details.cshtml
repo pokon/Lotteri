@@ -1,14 +1,13 @@
-﻿@using System.Security.Principal
-@model Lotteri.Models.LottoItemModel
+﻿@model Lotteri.Models.LottoItemModel
 
 @{
     ViewData["Title"] = "Details";
 }
 
-<h2>Detaljer</h2>
+<h2>Details</h2>
 
 <div>
-    <h4>Utlottning</h4>
+    <h4>LottoItemModel</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -29,17 +28,15 @@
         <dd>
             @Html.DisplayFor(model => model.DateTo)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsVisible)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsVisible)
+        </dd>
     </dl>
 </div>
-<hr />
 <div>
-    <form asp-action="Subscribe">
-        <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="Name" value=@User.Identity.Name />
-
-        <input type="submit" value="Anmäl dig" class="btn btn-default" />
-    </form>
-
-    <br />
-    <a asp-action="Index">Tillbaka till listan</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
 </div>
